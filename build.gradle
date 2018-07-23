@@ -1,0 +1,34 @@
+buildscript {
+  ext {
+    springBootVersion = '2.0.3.RELEASE'
+  }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+  }
+}
+
+apply plugin: 'scala'
+apply plugin: 'org.springframework.boot'
+
+version = 1.0
+
+ext {
+}
+
+jar {
+  baseName = 'cipher'
+  version =  rootProject.version
+}
+
+dependencies {
+  implementation 'org.scala-lang:scala-library:2.12.6'
+  implementation 'com.jsuereth:scala-arm_2.12:2.0'
+  implementation 'com.github.scopt:scopt_2.12:3.7.0'
+}
+
+repositories {
+  jcenter() 
+}

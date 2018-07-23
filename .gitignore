@@ -1,3 +1,9 @@
+
+.gradle/
+build/
+out/
+
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 
