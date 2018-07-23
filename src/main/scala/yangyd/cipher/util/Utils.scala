@@ -35,6 +35,8 @@ object Utils {
           pump(count + n, round + 1)
         }
     }
+    pump(0, 0)
+    out write cipher.doFinal()
   }
 
   def base64(data: Array[Byte]): String = B64ENCODER.encodeToString(data)

@@ -18,40 +18,55 @@ object cli extends App {
   val parser = new scopt.OptionParser[Arguments]("cipher") {
     head("cipher", "1.0")
 
+    arg[File]("<Input File>")
+      .optional()
+      .action((x, c) => c.copy(in = x))
+      .text("The file to encrypt. Default from STDIN if not given.")
+
     opt[File]('p', "password-file")
       .optional()
       .action((x, c) => c.copy(passwordFile = x))
-      .text("The file from which password is read. The first line is used as password." +
-        " if not given, the password is read from password environment variable")
+      .text("The file where encryption password is read. The first line of the file is used as password.\n" +
+        "                           if not given, the password is read from PASSWORD environment variable.")
 
     opt[File]('o', "out")
       .optional()
       .valueName("<Output File>")
       .action((x, c) => c.copy(out = x))
-      .text("Output file for encrypted data. Data is written to STDOUT if not given.")
+      .text("Output file for encrypted data. Default to STDOUT if not given.")
 
-    arg[File]("<Input File>")
-      .optional()
-      .action((x, c) => c.copy(in = x))
-      .text("The file to encrypt. Data is read from STDIN if not given.")
 
-    opt[Unit]('d', "decrypt mode").action((_, c) =>
-      c.copy(decrypt = true)).text("Decryption mode. Default is Encryption mode")
+    opt[Unit]('d', "decrypt").action((_, c) =>
+      c.copy(decrypt = true)).text("Decryption mode. The cipher runs as encryption mode by default.")
 
     opt[Unit]('q', "quiet").action((_, c) =>
-      c.copy(silence = true)).text("Do not show progress")
+      c.copy(silence = true)).text("Do not show progress on console when not writing to STDOUT.")
 
     opt[Unit]("debug").hidden().action((_, c) =>
       c.copy(debug = true)).text("this option is hidden in the usage text")
 
     help("help").text("prints this usage text")
 
-    note("some notes.")
+    note(
+      """
+        |
+        |The data is encrypted with AES-256-GCM with randomly generated salt.
+        |Generally, the same version of cipher application must be used in both encryption and decryption.
+        |
+        |Examples:
+        |
+        |Encryption:
+        |  java -jar cipher.jar -p passwd_file -o encrypted input_file
+        |
+        |Decryption:
+        |  PASSWORD=mypassword java -jar cipher.jar -d -o decrypted encrypted
+        |
+      """.stripMargin)
   }
 
   parser.parse(args, Arguments()) match {
     case Some(parsed) ⇒ invoke(parsed)
-    case None ⇒ parser.showTryHelp()
+    case None ⇒ fail()
   }
 
   private def invoke(arg: Arguments): Unit = {
@@ -76,7 +91,20 @@ object cli extends App {
         System.out
     }
 
-    Main.invokeCipher(arg.decrypt, showProgress, password, output, input)
+    if (password == null || password.trim.isEmpty) {
+      fail("Password not given")
+    }
+
+    Main.invokeCipher(arg.decrypt, showProgress, password.trim, output, input)
+  }
+
+  private def fail(message: String = null): Unit = {
+    if (message != null) {
+      System.err.println("Error: " + message)
+    }
+    System.err.println()
+    parser.showUsageAsError()
+    System.exit(-1)
   }
 
   private def readPassword(fo: Option[File]): Option[String] = fo flatMap { file ⇒

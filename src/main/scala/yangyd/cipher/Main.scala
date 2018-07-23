@@ -12,10 +12,13 @@ object Main {
                    output: OutputStream,
                    input: InputStream): Unit = {
 
+    val op = if (decrypt) "decrypt" else "encrypt"
     val progress: Option[Int ⇒ Unit] = if (showProgress) {
-      None
+      Some { n: Int ⇒
+        System.out.print(op + ": " + n + "\r")
+      }
     } else {
-      Some({n: Int ⇒ println(s"Encrypted: $n\r")})
+      None
     }
 
     for (in ← managed(input); out ← managed(output)) {
