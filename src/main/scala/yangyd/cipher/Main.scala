@@ -12,7 +12,7 @@ object Main {
                    output: OutputStream,
                    input: InputStream): Unit = {
 
-    val op = if (decrypt) "decrypt" else "encrypt"
+    val op = if (decrypt) "Decrypt" else "Encrypt"
     val progress: Option[Int ⇒ Unit] = if (showProgress) {
       Some { n: Int ⇒
         System.out.print(op + ": " + n + "\r")
@@ -21,13 +21,28 @@ object Main {
       None
     }
 
-    for (in ← managed(input); out ← managed(output)) {
-      if (decrypt) {
-        new Decryptor(password, progress).decrypt(out, in)
-      } else {
-        new Encryptor(password, progress).encrypt(out, in)
+    def run(): Unit = {
+      for (in ← managed(input); out ← managed(output)) {
+        if (decrypt) {
+          new Decryptor(password, progress).decrypt(out, in)
+        } else {
+          new Encryptor(password, progress).encrypt(out, in)
+        }
       }
     }
+
+    try {
+      run()
+    } catch {
+      case e: Exception ⇒
+        val error = e.getClass.getSimpleName.replaceFirst("(Error$|Exception$)", "")
+        fatal(op, s"${e.getMessage} ($error)")
+    }
+
   }
 
+  private def fatal(op: String, msg: String): Unit = {
+    System.err.println(s"$op failed. $msg")
+    System.exit(-1)
+  }
 }

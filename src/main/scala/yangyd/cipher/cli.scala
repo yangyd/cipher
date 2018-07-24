@@ -3,10 +3,9 @@ package yangyd.cipher
 import java.io._
 
 import resource._
-import yangyd.cipher.aes.{Decryptor, Encryptor}
 
 object cli extends App {
-  private val PASSWORD_ENV = "PASSWORD"
+  private val PASSWORD_ENV = "CIPHER_PASSWORD"
 
   case class Arguments(passwordFile: File = null,
                        decrypt: Boolean = false,
@@ -16,28 +15,27 @@ object cli extends App {
                        debug: Boolean = false)
 
   val parser = new scopt.OptionParser[Arguments]("cipher") {
-    head("cipher", "1.0")
+    head("cipher.jar", "1.0")
 
     arg[File]("<Input File>")
       .optional()
       .action((x, c) => c.copy(in = x))
       .text("The file to encrypt. Default from STDIN if not given.")
 
+    opt[File]('o', "out")
+      .required()
+      .valueName("<Output File>")
+      .action((x, c) => c.copy(out = x))
+      .text("(Required) Output file for encrypted data. Use '-' to indicate STDOUT.")
+
     opt[File]('p', "password-file")
       .optional()
       .action((x, c) => c.copy(passwordFile = x))
-      .text("The file where encryption password is read. The first line of the file is used as password.\n" +
-        "                           if not given, the password is read from PASSWORD environment variable.")
-
-    opt[File]('o', "out")
-      .optional()
-      .valueName("<Output File>")
-      .action((x, c) => c.copy(out = x))
-      .text("Output file for encrypted data. Default to STDOUT if not given.")
-
+      .text("The file where cipher password is read. The first line of the file is used as password.\n" +
+        s"                           Alternatively, the password can be passed using environment variable '$PASSWORD_ENV'.")
 
     opt[Unit]('d', "decrypt").action((_, c) =>
-      c.copy(decrypt = true)).text("Decryption mode. The cipher runs as encryption mode by default.")
+      c.copy(decrypt = true)).text("Decryption mode. The cipher runs in encryption mode by default.")
 
     opt[Unit]('q', "quiet").action((_, c) =>
       c.copy(silence = true)).text("Do not show progress on console when not writing to STDOUT.")
@@ -51,14 +49,12 @@ object cli extends App {
       """
         |
         |The data is encrypted with AES-256-GCM with randomly generated salt.
-        |Generally, the same version of cipher application must be used in both encryption and decryption.
+        |Generally, the same version of cipher.jar must be used in both encryption and decryption.
         |
         |Examples:
         |
-        |Encryption:
         |  java -jar cipher.jar -p passwd_file -o encrypted input_file
         |
-        |Decryption:
         |  PASSWORD=mypassword java -jar cipher.jar -d -o decrypted encrypted
         |
       """.stripMargin)
@@ -84,11 +80,11 @@ object cli extends App {
       case None ⇒ System.in
     }
 
-    val output = Option(arg.out) match {
-      case Some(file) ⇒ new FileOutputStream(file)
-      case None ⇒
+    val output = arg.out.getName match {
+      case "-" ⇒
         showProgress = false
         System.out
+      case _: String ⇒ new FileOutputStream(arg.out)
     }
 
     if (password == null || password.trim.isEmpty) {

@@ -24,23 +24,22 @@ object Utils {
 
   def transform(cipher: Cipher, out: OutputStream, in: InputStream, progress: Option[Int ⇒ Unit]): Unit = {
     val buffer = new Array[Byte](BUF_SIZE)
+
     @tailrec def pump(count: Int, round: Int): Int = in.read(buffer) match {
       case EOF ⇒ count
       case n ⇒
-        out write cipher.update(trim(buffer, n))
+        Option(cipher.update(buffer, 0, n)) foreach out.write
         if (round > PROGRESS_INTERVAL) {
-          for { fn ← progress } fn(count)
+          for {fn ← progress} fn(count)
           pump(count + n, 0)
         } else {
           pump(count + n, round + 1)
         }
     }
+
     pump(0, 0)
     out write cipher.doFinal()
   }
 
   def base64(data: Array[Byte]): String = B64ENCODER.encodeToString(data)
-
-  private def trim(data: Array[Byte], n: Int): Array[Byte] =
-    if (n == data.length) data else java.util.Arrays.copyOf(data, n)
 }
