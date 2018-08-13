@@ -55,7 +55,7 @@ object cli extends App {
         |
         |  java -jar cipher.jar -p passwd_file -o encrypted input_file
         |
-        |  PASSWORD=mypassword java -jar cipher.jar -d -o decrypted encrypted
+        |  CIPHER_PASSWORD=mypassword java -jar cipher.jar -d -o decrypted encrypted
         |
       """.stripMargin)
   }
