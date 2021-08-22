@@ -2,32 +2,30 @@
 
 # Cipher
 
-Symmetrical data encryption/decryption tool using AES256, with random salt and IV. Require Java 1.8 or above.
+Symmetrical data encryption/decryption tool using AES256, with random salt and IV. Requires Java 11 or above, tested to be working on JDK 16.0.2
 
 ## Example (in Powershell)
 
 Encryption:
 ```
 PS C:\> $env:CIPHER_PASSWORD = 'mypassword'
-PS C:\> java -jar .\cipher-2.0.jar -o mydata.encrypted .\mydata.txt
+PS C:\> java -jar .\cipher-3.0.jar -o mydata.encrypted .\mydata.txt
 ```
 
 Decryption:
 ```
-PS C:\> java -jar .\cipher-2.0.jar -d -o mydata.txt.decrypted .\mydata.encrypted
+PS C:\> java -jar .\cipher-3.0.jar -d -o mydata.txt.decrypted .\mydata.encrypted
 
-PS C:\> diff mydata.txt mydata.txt.decrypted
-InputObject                      SideIndicator
------------                      -------------
-.\mydata.txt.decrypted           =>
-.\mydata.txt                     <=
+PS C:\PRIVATE> fc.exe .\mydata.txt.decrypted .\mydata.txt
+Comparing files .\mydata.txt.decrypted and .\mydata.txt
+FC: no differences encountered
 
 ```
 
 ## Usage
 
 ```
-cipher.jar 2.0
+cipher.jar 1.0
 Usage: cipher [options] [<Input File>]
 
   <Input File>             The file to encrypt. Default from STDIN if not given.
@@ -51,12 +49,6 @@ Examples:
 ```
 
 ## Build
-
-```
-mvn package
-```
-
-Or
 
 ```
 gradle build

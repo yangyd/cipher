@@ -1,31 +1,25 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.3.RELEASE'
-  }
+plugins {
+  id 'org.springframework.boot' version '2.5.4'
+  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+  id 'scala'
 }
 
-apply plugin: 'scala'
-apply plugin: 'org.springframework.boot'
+group = 'com.github.yangyd'
+version = '3.0'
+// sourceCompatibility = '11'
 
-version = 1.0
-
-ext {}
+repositories {
+  mavenCentral()
+}
 
 jar {
-  baseName = 'cipher'
-  version =  rootProject.version
+  archiveBaseName = 'cipher'
+  archiveVersion = rootProject.version
 }
 
 dependencies {
-  implementation 'org.scala-lang:scala-library:2.12.6'
-  implementation 'org.bouncycastle:bcprov-jdk15on:1.60'
+  implementation 'org.scala-lang:scala-library:2.12.13'
+  implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
   implementation 'com.jsuereth:scala-arm_2.12:2.0'
-  implementation 'com.github.scopt:scopt_2.12:3.7.0'
-}
-
-repositories {
-  jcenter() 
+  implementation 'com.github.scopt:scopt_2.12:3.7.1'
 }
