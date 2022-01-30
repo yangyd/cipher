@@ -1,11 +1,11 @@
 plugins {
-  id 'org.springframework.boot' version '2.5.4'
+  id 'org.springframework.boot' version '2.5.9'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'scala'
 }
 
 group = 'com.github.yangyd'
-version = '3.0'
+version = '3.0.1'
 // sourceCompatibility = '11'
 
 repositories {
@@ -18,8 +18,8 @@ jar {
 }
 
 dependencies {
-  implementation 'org.scala-lang:scala-library:2.12.13'
-  implementation 'org.bouncycastle:bcprov-jdk15on:1.69'
+  implementation 'org.scala-lang:scala-library:2.12.15'
+  implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
   implementation 'com.jsuereth:scala-arm_2.12:2.0'
   implementation 'com.github.scopt:scopt_2.12:3.7.1'
 }
